@@ -1,16 +1,27 @@
 import { Box } from "@mui/material";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import FileDrop from "./FileDrop";
 import HeaderView from "./HeaderView";
 import TabsView from "./TabsView";
 import TextFieldView from "./TextFieldView";
 import { getComponentProps } from "../utils";
+import { useKey } from "../hooks";
 
 export default function FileView(props) {
-  const { onChange, path, schema, autoFocused } = props;
+  const { data, onChange, path, schema, autoFocused } = props;
   const { view = {} } = schema;
-  const { types } = view;
-  const [type, setType] = useState("file");
+  const { types, defaultMode } = view;
+  const [type, setType] = useState(defaultMode);
+
+  const [key, setUserChanged] = useKey(path, schema);
+
+  const handleChange = useCallback(
+    (data: string | null) => {
+      onChange(path, data);
+      if (data !== null) setUserChanged();
+    },
+    [onChange, path, setUserChanged]
+  );
 
   return (
     <Box {...getComponentProps(props, "container")}>
@@ -24,9 +35,9 @@ export default function FileView(props) {
             ],
           },
         }}
-        onChange={(path, value) => {
+        onChange={(_: string, value: string) => {
           setType(value);
-          onChange(path, "");
+          handleChange(null);
         }}
         {...getComponentProps(props, "tabs")}
       />
@@ -34,11 +45,11 @@ export default function FileView(props) {
         {type === "file" && (
           <FileDrop
             onChange={async (files) => {
-              if (files?.length === 0) return onChange(path, "");
+              if (files?.length === 0) return handleChange(null);
               const [file] = files;
               const { error, result } = await fileToBase64(file);
               if (error) return; // todo: handle error
-              onChange(path, result);
+              if (result) handleChange(result);
             }}
             types={types}
             autoFocused={autoFocused}
@@ -48,8 +59,16 @@ export default function FileView(props) {
         )}
         {type === "url" && (
           <TextFieldView
-            schema={{ view: { placeholder: "URL to a file" } }}
-            onChange={onChange}
+            key={key}
+            schema={{
+              default: schema.default,
+              view: { placeholder: "URL to a file" },
+            }}
+            onChange={(path: string, value: string) => {
+              handleChange(value);
+            }}
+            path={path}
+            data={data}
             {...getComponentProps(props, "fileURL")}
           />
         )}

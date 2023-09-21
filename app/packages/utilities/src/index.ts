@@ -10,6 +10,7 @@ export * from "./errors";
 export * from "./fetch";
 export * from "./styles";
 export * from "./paths";
+export * from "./type-check";
 
 interface O {
   [key: string]: O | any;

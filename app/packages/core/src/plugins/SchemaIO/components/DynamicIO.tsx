@@ -1,10 +1,10 @@
 import { PluginComponentType, useActivePlugins } from "@fiftyone/plugins";
-import { get } from "lodash";
+import { get, isEqual } from "lodash";
 import React, { useEffect } from "react";
 import { getComponent, getErrorsForView } from "../utils";
 
 export default function DynamicIO(props) {
-  const { schema, onChange, path, parentSchema, relativePath } = props;
+  const { data, schema, onChange, path, parentSchema, relativePath } = props;
   const customComponents = useCustomComponents();
   const Component = getComponent(schema, customComponents);
   const computedSchema = schemaWithInheritedDefault(
@@ -16,9 +16,10 @@ export default function DynamicIO(props) {
 
   // todo: need to improve initializing default value in state
   useEffect(() => {
-    if (schema.default) onChange(path, defaultValue);
+    if (isEqual(data, defaultValue)) return;
+    if (defaultValue) onChange(path, defaultValue);
     else if (type === "boolean") onChange(path, false);
-  }, []);
+  }, [defaultValue]);
 
   return (
     <Component

@@ -24,7 +24,8 @@ export default function Header(props: HeaderProps) {
     tertiary: "body2" as const,
   };
 
-  if (!label && !description && (!caption || omitCaption)) return null;
+  if (!label && !description && (!caption || omitCaption) && !Actions)
+    return null;
 
   const {
     container = {},

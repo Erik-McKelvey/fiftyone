@@ -4,6 +4,7 @@ import { getComponentProps } from "../utils";
 import autoFocus from "../utils/auto-focus";
 import AlertView from "./AlertView";
 import FieldWrapper from "./FieldWrapper";
+import { useKey } from "../hooks";
 
 const MULTI_SELECT_TYPES = ["string", "array"];
 
@@ -47,9 +48,12 @@ export default function DropdownView(props) {
     return labels;
   }, {});
 
+  const [key, setUserChanged] = useKey(path, schema);
+
   return (
     <FieldWrapper {...props}>
       <Select
+        key={key}
         disabled={readOnly}
         autoFocus={autoFocus(props)}
         defaultValue={computedDefaultValue}
@@ -72,6 +76,7 @@ export default function DropdownView(props) {
               ? value.join(separator)
               : value;
           onChange(path, computedValue);
+          setUserChanged();
         }}
         multiple={multiple}
         {...getComponentProps(props, "select")}
