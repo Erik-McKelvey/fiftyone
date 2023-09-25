@@ -953,7 +953,14 @@ class TabsView(Choices):
 
 
 class JSONView(View):
-    """Displays a JSON viewer."""
+    """Displays a JSON viewer.
+
+    Examples::
+
+        # show an object/dictionary in a JSON viewer
+        outputs.obj("my_property", label="My Object", view=types.JSONView())
+
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -961,6 +968,11 @@ class JSONView(View):
 
 class AutocompleteView(Choices):
     """Displays an autocomplete input.
+
+    Args:
+
+        choices (None): a list of :class:`Choice` instances
+        read_only (False): whether the view is read-only
 
     .. note::
 
@@ -972,7 +984,12 @@ class AutocompleteView(Choices):
 
 
 class FileView(View):
-    """Displays a file input."""
+    """Displays a file input.
+
+    Args:
+
+        types (None): a string containg the file types to accept as a CSV string
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1002,7 +1019,13 @@ class HiddenView(View):
 
 
 class LoadingView(ReadOnlyView):
-    """Displays a loading indicator."""
+    """Displays a loading indicator.
+
+    Args:
+
+        label ("Loading"): a label for the loading indicator
+
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1195,7 +1218,24 @@ class ProgressView(View):
 
 
 class ImageView(View):
-    """Displays an image."""
+    """Displays an image.
+
+    Examples::
+
+        def execute():
+            return {"image": "https://voxel51.com/wp-content/uploads/2022/11/voxel51-logo-horz-color-600dpi-1.png"}
+
+        def resolve_output(self, ctx):
+            outputs = types.Object()
+            outputs.define_property(
+                "image",
+                types.String(),
+                label="Image",
+                view=types.ImageView(),
+            )
+            return types.Property(outputs)
+
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1207,6 +1247,11 @@ class AlertView(View):
     Args:
         severity (None): the severity of the alert displayed, one of
         ``(info", "success", "warning", "error")``
+        componentsProps (None): dict for providing props to components
+        componentProps['label'] (None): props to pass to the label subcomponents
+        componentProps['description'] (None): props to pass to the description subcomponents
+        componentProps['caption'] (None): props to pass to the caption subcomponents
+
     """
 
     def __init__(self, **kwargs):
@@ -1220,6 +1265,16 @@ class AlertView(View):
 class CheckboxView(View):
     """Displays a checkbox.
 
+    Examples::
+
+        inputs.bool(
+            "my_property_name",
+            default=True,
+            label="My Checkbox",
+            description="A checkbox description.",
+            view=types.CheckboxView(),
+        )
+
     .. note::
 
         Must be used with :class:`Boolean` properties.
@@ -1230,7 +1285,15 @@ class CheckboxView(View):
 
 
 class ErrorView(View):
-    """Displays an error."""
+    """Displays an error.
+
+    Args:
+        detailed (False): if ``True``, displays a detailed error message.
+        popout (None): if provided, displays a popout button with the given
+            dictionary of props.
+        left (False): Used with popout to display on the left side of the
+            popout button.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1305,12 +1368,13 @@ class DropdownView(Dropdown):
 
 
 class LabelValueView(View):
-    """Displays a label-value component.
+    """Displays a label-value component. Used for displaying a label and a corresponding value.
 
     .. note::
 
         Must be used with :class:`String`, :class:`Number`, or :class:`Boolean`
-        properties, or lists of such properties.
+        properties, or lists of such properties. Also this view is not supported
+        for input properties.
     """
 
     def __init__(self, **kwargs):
